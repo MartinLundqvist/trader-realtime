@@ -1,0 +1,11 @@
+playground/*
+
+production/node_modules/*
+production/logs/*
+production/public/chart_data/*
+production/build/*
+
+production/.dockerignore
+production/.env
+production/Dockerfile
+production/fly.toml
