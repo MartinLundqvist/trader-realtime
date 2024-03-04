@@ -160,7 +160,13 @@ export class Trader {
       },
     };
 
-    await this.alpacaAPI.placeOrder(orderToPlace);
+    const orderPlaced = await this.alpacaAPI.placeOrder(orderToPlace);
+
+    if (orderPlaced === undefined) {
+      this.logger.error('Position NOT entered');
+    } else {
+      this.logger.info('Position entered: ' + JSON.stringify(orderPlaced));
+    }
   }
 
   private getPreviousTradingDay(date: Date) {
