@@ -264,7 +264,7 @@ export class AlpacaAPI {
         throw new Error(response.statusText);
       }
       const data = await response.json();
-      console.log(data);
+      this.logger.info(`Successfully placed order: ${JSON.stringify(data)}`);
       return data;
     } catch (error) {
       if (error instanceof Error) {
