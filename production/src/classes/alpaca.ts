@@ -20,7 +20,7 @@ export class AlpacaAPI {
   constructor(logger: Logger, apiKey: string, apiSecret: string, paper = true) {
     this.apiKey = apiKey;
     this.apiSecret = apiSecret;
-    this.logger = logger;
+    this.logger = logger.child({ service: 'AlpacaAPI' });
 
     if (paper) {
       this.baseUrl = 'https://paper-api.alpaca.markets';
@@ -261,6 +261,14 @@ export class AlpacaAPI {
     try {
       const response = await fetch(url, init);
       if (!response.ok) {
+        if (response.statusText === 'Unprocessable Entity') {
+          const data = await response.json();
+          this.logger.error(
+            `Unprocessable Entity error - Response Body is: ${JSON.stringify(
+              data.invalid_request
+            )}`
+          );
+        }
         throw new Error(response.statusText);
       }
       const data = await response.json();

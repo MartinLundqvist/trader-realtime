@@ -7,7 +7,7 @@ export class TiingoAPI {
 
   constructor(logger: Logger, apiKey: string) {
     this.apiKey = apiKey;
-    this.logger = logger;
+    this.logger = logger.child({ service: 'TiingoAPI' });
   }
 
   public async getBars(
