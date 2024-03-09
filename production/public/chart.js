@@ -55,10 +55,30 @@ fetch('/chart_data/filelist.txt')
 //     updateChart(data);
 //   });
 
+const formatDate = (dateStr) => {
+  const date = new Date(dateStr);
+  const formatter = new Intl.DateTimeFormat('en', {
+    timeZone: 'America/New_York',
+    year: 'numeric',
+    month: 'short',
+    day: '2-digit',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hour12: false,
+  });
+  return formatter.format(date);
+};
+
 const updateChart = (data) => {
   if (!data) return;
 
   console.log(data);
+
+  // Change to US timezone
+  for (let d of data) {
+    d.date = formatDate(d.date);
+  }
 
   const dates = data.map((d) => d.date);
 
