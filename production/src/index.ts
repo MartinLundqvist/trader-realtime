@@ -5,6 +5,9 @@ import path from 'path';
 import { pinoHttp } from 'pino-http';
 import { Worker } from './classes/worker.js';
 import cron from 'node-cron';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 logger.info(
   'Starting RealTime Trader application! Enjoy making money... or losing it!'
@@ -25,12 +28,13 @@ const server = app.listen(3000, () => {
   logger.info('Server is running on port 3000');
 });
 
-const worker = new Worker(logger);
-// worker.startTrading().then(() => {
-//   setTimeout(() => {
-//     worker.stopTrading();
-//   }, 15 * 60 * 1000);
-// });
+const worker = new Worker(logger, prisma);
+// TODO: For testing purposes only
+worker.startTrading().then(() => {
+  setTimeout(() => {
+    worker.stopTrading();
+  }, 15 * 60 * 1000);
+});
 
 // cron.schedule(
 //   '20 13 * * Sunday',
@@ -78,11 +82,13 @@ cron.schedule(
 process.on('SIGTERM', () => {
   logger.info('Received SIGTERM, closing down application');
   server.close();
+  prisma.$disconnect();
   process.exit(0);
 });
 
 process.on('SIGINT', () => {
   logger.info('Received SIGINT, closing down application');
   server.close();
+  prisma.$disconnect();
   process.exit(0);
 });

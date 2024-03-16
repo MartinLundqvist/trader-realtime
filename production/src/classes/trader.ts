@@ -7,6 +7,8 @@ import {
   TiingoBarsResponse,
 } from '../schemas/index.js';
 import { writeFile } from 'fs/promises';
+import { PrismaClient } from '@prisma/client';
+import { Database } from './database.js';
 
 type TiingoBarResponse = TiingoBarsResponse[number];
 export interface Signal extends TiingoBarResponse {
@@ -19,6 +21,7 @@ export class Trader {
   private logger: Logger;
   private alpacaAPI: AlpacaAPI;
   private tiingoAPI: any;
+  private database: Database;
   private symbol: string;
   private getSignalsFn: (bars: TiingoBarsResponse) => Signal[];
   private size: number;
@@ -29,6 +32,7 @@ export class Trader {
     logger: Logger,
     alpacaAPI: AlpacaAPI,
     tiingoAPI: TiingoAPI,
+    database: Database,
     symbol: string,
     getSignalsFn: (bars: TiingoBarsResponse) => Signal[],
     size: number
@@ -36,6 +40,7 @@ export class Trader {
     this.logger = logger.child({ trader: symbol });
     this.alpacaAPI = alpacaAPI;
     this.tiingoAPI = tiingoAPI;
+    this.database = database;
     this.symbol = symbol;
     this.getSignalsFn = getSignalsFn;
     this.size = size;
@@ -58,9 +63,9 @@ export class Trader {
   }
 
   public async update() {
-    const open = await this.alpacaAPI.isMarketOpen();
+    // const open = await this.alpacaAPI.isMarketOpen();
     // TODO: DEBUG ONLY!
-    // const open = true;
+    const open = true;
     if (!open) {
       this.logger.info('Market is closed, skipping update');
       return;
@@ -166,6 +171,7 @@ export class Trader {
       this.logger.error('Position NOT entered');
     } else {
       this.logger.info('Position entered: ' + JSON.stringify(orderPlaced));
+      await this.database.create(orderToPlace);
     }
   }
 

@@ -4,6 +4,8 @@ import { writeFile } from 'fs/promises';
 import { Trader } from './trader.js';
 import { TiingoAPI } from './tiingo.js';
 import { getBollingerSignals } from '../signal_algos/index.js';
+import { PrismaClient } from '@prisma/client';
+import { Database } from './database.js';
 
 const ALPACA_API_KEY = process.env.ALPACA_API_KEY || '';
 const ALPACA_API_SECRET = process.env.ALPACA_API_SECRET || '';
@@ -15,12 +17,14 @@ export class Worker {
   private tiingo: TiingoAPI;
   private stocks: string[] = [];
   private traders: Trader[] = [];
+  private database: Database;
 
-  constructor(logger: Logger) {
+  constructor(logger: Logger, prisma: PrismaClient) {
     this.logger = logger;
     this.logger.info('Initializing Worker...');
     this.alpaca = new AlpacaAPI(logger, ALPACA_API_KEY, ALPACA_API_SECRET);
     this.tiingo = new TiingoAPI(logger, TIINGO_API_KEY);
+    this.database = new Database(logger, prisma);
   }
 
   public async startTrading() {
@@ -39,6 +43,7 @@ export class Worker {
           this.logger,
           this.alpaca,
           this.tiingo,
+          this.database,
           stock,
           getBollingerSignals,
           0.1
